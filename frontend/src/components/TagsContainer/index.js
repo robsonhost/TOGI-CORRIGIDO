@@ -5,7 +5,7 @@ import { isArray, isString } from "lodash";
 import toastError from "../../errors/toastError";
 import api from "../../services/api";
 
-export function TagsContainer({ contact, ticket }) {
+export function TagsContainer({ contact, ticket, kanban }) {
 
     const [tags, setTags] = useState([]);
     const [selecteds, setSelecteds] = useState([]);
@@ -21,10 +21,10 @@ export function TagsContainer({ contact, ticket }) {
         if (isMounted.current) {
             loadTags().then(() => {
                 let tags = []
-                if (Array.isArray(ticket?.tags)) {
+                if (ticket && Array.isArray(ticket?.tags)) {
                     tags = [...tags,...ticket.tags]                
                 } 
-                if (Array.isArray(contact.tags)) {
+                if (Array.isArray(contact?.tags)) {
                     tags = [...tags,...contact.tags]                
                 } 
                 setSelecteds(tags);
@@ -42,8 +42,12 @@ export function TagsContainer({ contact, ticket }) {
     }
 
     const loadTags = async () => {
-        try {
-            const { data } = await api.get(`/tags/list`);
+        try {            
+            const { data } = await api.get(`/tags/list`, {
+                params:{
+                    kanban
+                }
+            });
                                     
             setTags(data);
         } catch (err) {
@@ -82,7 +86,7 @@ export function TagsContainer({ contact, ticket }) {
             optionsChanged = value;
         }
         setSelecteds(optionsChanged);
-        await syncTags({ contactId: contact.id,ticketId: ticket.id , tags: optionsChanged });
+        await syncTags({ contactId: contact?.id,ticketId: ticket?.id , tags: optionsChanged });
     }
 
     function getRandomHexColor() {

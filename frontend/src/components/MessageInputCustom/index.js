@@ -526,6 +526,7 @@ const MessageInputCustom = (props) => {
   const { get: getSetting } = useCompanySettings()
   const [mediaUrl, setMediaUrl] = useState(null);
   const [mediaName, setMediaName] = useState(null);
+  const [titleMedia, setTitleMedia] = useState('');
 
   useEffect(() => {
     async function fetchData() {
@@ -612,6 +613,7 @@ const MessageInputCustom = (props) => {
     medias.forEach((media) => {
       formData.append("medias", media);
       privateMessage ? formData.append("body", `\u200d`) : formData.append("body", "")
+      formData.append("mediaTitle", titleMedia);
     });
 
 
@@ -623,6 +625,7 @@ const MessageInputCustom = (props) => {
 
     setLoading(false);
     setMedias([]);
+    setTitleMedia('');
   };
 
   const handleSendMessage = async () => {
@@ -803,7 +806,10 @@ const MessageInputCustom = (props) => {
         <IconButton
           aria-label="cancel-upload"
           component="span"
-          onClick={(e) => setMedias([])}
+          onClick={(e) => {
+            setMedias([]);
+            setTitleMedia('');
+          }}
         >
           <CancelIcon className={classes.sendMessageIcons} />
         </IconButton>
@@ -832,7 +838,7 @@ const MessageInputCustom = (props) => {
                 );
               })}
             </List>
-            <InputBase
+            {/* <InputBase
               style={{ width: "0", height: "0" }}
               inputRef={function (input) {
                 if (input != null) {
@@ -845,7 +851,26 @@ const MessageInputCustom = (props) => {
                 }
               }}
               defaultValue={medias[0].name}
-            />
+            /> */}
+
+            <TextField value={titleMedia}
+              defaultValue={medias[0].name}
+              onKeyPress={(e) => {
+                if (e.key === "Enter") {
+                  handleUploadMedia();
+                }
+              }}
+              inputRef={function (input) {
+                if (input != null) {
+                  input.focus();
+                }
+              }}
+              onChange={e => setTitleMedia(e.target.value)}
+              fullWidth
+              id="outlined-basic"
+              label="Digite uma mensagem"
+              variant="outlined" />
+
           </Grid>
         )}
         <IconButton

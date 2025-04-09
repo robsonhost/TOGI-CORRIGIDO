@@ -20,7 +20,7 @@ import ChatMessages from "./ChatMessages";
 import { UsersFilter } from "../../components/UsersFilter";
 import api from "../../services/api";
 import { socketConnection } from "../../services/socket";
-
+import MainContainer from '../../components/MainContainer';
 import { has, isObject } from "lodash";
 
 import { AuthContext } from "../../context/Auth/AuthContext";
@@ -440,9 +440,12 @@ function Chat(props) {
         }}
         handleClose={() => setShowDialog(false)}
       />
-      <Paper className={classes.mainContainer}>
+      <MainContainer>
+        {isWidthUp("md", props.width) ? renderGrid() : renderTab()}  
+      </MainContainer>
+      {/* <Paper className={classes.mainContainer}>
         {isWidthUp("md", props.width) ? renderGrid() : renderTab()}
-      </Paper>
+      </Paper> */}
     </>
   );
 }

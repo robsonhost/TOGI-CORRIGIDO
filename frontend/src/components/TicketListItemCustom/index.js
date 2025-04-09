@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 
 import { useHistory, useParams } from "react-router-dom";
-import { parseISO, format, isSameDay } from "date-fns";
+import { parseISO, format, isSameDay, differenceInHours, isYesterday, differenceInMinutes } from "date-fns";
 import clsx from "clsx";
 
 import { makeStyles } from "@material-ui/core/styles";
-import { green, grey} from "@material-ui/core/colors";
+import { green, grey } from "@material-ui/core/colors";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import ListItemAvatar from "@material-ui/core/ListItemAvatar";
@@ -24,7 +24,7 @@ import { i18n } from "../../translate/i18n";
 import api from "../../services/api";
 import ButtonWithSpinner from "../ButtonWithSpinner";
 import MarkdownWrapper from "../MarkdownWrapper";
-import { Tooltip } from "@material-ui/core";
+import { Box, Tooltip } from "@material-ui/core";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { TicketsContext } from "../../context/Tickets/TicketsContext";
 import toastError from "../../errors/toastError";
@@ -86,7 +86,6 @@ const useStyles = makeStyles((theme) => ({
         justifySelf: "flex-end",
         textAlign: "right",
         position: "relative",
-        top: -25,
         marginRight: "1px"
     },
 
@@ -94,7 +93,6 @@ const useStyles = makeStyles((theme) => ({
         justifySelf: "flex-end",
         textAlign: "right",
         position: "relative",
-        top: -30,
         color: "green",
         fontWeight: "bold",
         marginRight: "1px",
@@ -351,6 +349,26 @@ const TicketListItemCustom = ({ ticket }) => {
         }
 
     };
+
+    const renderTime = () => {
+        return (
+            <Badge className={`${classes.lastBadge} ${classes.leftAligned}`} title={i18n.t("Último Contato")}>
+                <span className={classes.redText}>
+                    {isYesterday(parseISO(ticket?.updatedAt)) || differenceInHours(new Date(), parseISO(ticket?.updatedAt)) >= 24 ? (
+                        "Ontem"
+                    ) : (
+                        `Há ${differenceInMinutes(new Date(), parseISO(ticket?.updatedAt)) >= 60
+                            ? differenceInHours(new Date(), parseISO(ticket?.updatedAt))
+                            : differenceInMinutes(new Date(), parseISO(ticket?.updatedAt))
+                        } ${differenceInMinutes(new Date(), parseISO(ticket?.updatedAt)) >= 60
+                            ? "horas"
+                            : "minutos"
+                        }`
+                    )}
+                </span>
+            </Badge>
+        )
+    }
 
 
 
@@ -610,9 +628,11 @@ const TicketListItemCustom = ({ ticket }) => {
                 />
                 <ListItemSecondaryAction>
                     {ticket.lastMessage && (
-                        <>
+
+                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', marginTop: -20 }}>
 
                             <Typography
+
                                 className={Number(ticket.unreadMessages) > 0 ? classes.lastMessageTimeUnread : classes.lastMessageTime}
                                 component="span"
                                 variant="body2"
@@ -624,12 +644,21 @@ const TicketListItemCustom = ({ ticket }) => {
                                 ) : (
                                     <>{format(parseISO(ticket.updatedAt), "dd/MM/yyyy")}</>
                                 )}
+
+
+
                             </Typography>
 
-                            <br />
+                            <Box>{renderTime()}</Box>
 
-                        </>
+                            {/* <br /> */}
+
+
+                        </Box>
                     )}
+
+
+
                     <span className={classes.secondaryContentSecond}>
                         {(ticket.status === "pending" && (ticket.queueId === null || ticket.queueId === undefined)) && (
                             <ButtonWithSpinner
@@ -699,6 +728,7 @@ const TicketListItemCustom = ({ ticket }) => {
                             </ButtonWithSpinner>
                         )}
                     </span>
+
                     <span className={classes.secondaryContentSecond} >
                         {(ticket.status === "pending") && (
                             <ButtonWithSpinner
@@ -716,6 +746,7 @@ const TicketListItemCustom = ({ ticket }) => {
                             </ButtonWithSpinner>
                         )}
                     </span>
+
                     <span className={classes.secondaryContentSecond} >
                         {(ticket.status === "closed" && (ticket.queueId === null || ticket.queueId === undefined)) && (
                             <ButtonWithSpinner
@@ -734,6 +765,7 @@ const TicketListItemCustom = ({ ticket }) => {
 
                         )}
                     </span>
+
                     <span className={classes.secondaryContentSecond} >
                         {(ticket.status === "closed" && ticket.queueId !== null) && (
                             <ButtonWithSpinner

@@ -105,6 +105,7 @@ export const remove = async (
 
 export const list = async (req: Request, res: Response): Promise<Response> => {
   const { searchParam, kanban } = req.query as IndexQuery;
+
   const { companyId } = req.user;
 
   const tags = await SimpleListService({ searchParam, kanban , companyId });

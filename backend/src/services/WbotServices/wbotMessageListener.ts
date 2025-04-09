@@ -2002,7 +2002,7 @@ const handleMessage = async (
 ): Promise<void> => {
 
   if (isImported) {
-    addLogs({ fileName: `processImportMessagesWppId${wbot.id}.txt`, text: `Importando Mensagem: ${JSON.stringify(msg, null, 2)}>>>>>>>>>>>>>>>>>>>` })
+    // addLogs({ fileName: `processImportMessagesWppId${wbot.id}.txt`, text: `Importando Mensagem: ${JSON.stringify(msg, null, 2)}>>>>>>>>>>>>>>>>>>>` })
 
     let wid = msg.key.id
     let existMessage = await Message.findOne({

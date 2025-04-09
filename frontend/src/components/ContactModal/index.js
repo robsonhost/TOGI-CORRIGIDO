@@ -190,7 +190,7 @@ const ContactModal = ({ open, onClose, contactId, initialValues, onSave }) => {
 									/>
 								</div>
 								<div>
-									<TagsContainer contact={contact} className={classes.textField} />
+									<TagsContainer contact={contact} className={classes.textField} kanban={0} />
 								</div>
 								<Typography
 									style={{ marginBottom: 8, marginTop: 12 }}

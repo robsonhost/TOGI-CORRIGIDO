@@ -98,9 +98,9 @@ const wbotMonitor = async (
 
     wbot.ev.on("contacts.upsert", async (contacts: BContact[]) => {
 
-      console.log("upsert", contacts);
+      //console.log("upsert", contacts);
 
-      await createOrUpdateBaileysService({
+      createOrUpdateBaileysService({
         whatsappId: whatsapp.id,
         contacts,
       });

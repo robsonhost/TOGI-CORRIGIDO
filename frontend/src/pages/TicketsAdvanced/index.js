@@ -27,7 +27,7 @@ const useStyles = makeStyles(theme => ({
         alignItems: "center",
         justifyContent: "center",
         height: "100%",
-		// backgroundColor: "#eee"
+        // backgroundColor: "#eee"
         background: theme.palette.tabHeaderBackground,
     },
     placeholderItem: {
@@ -35,14 +35,14 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const TicketAdvanced = (props) => {
-	const classes = useStyles();
-	const { ticketId } = useParams();
-	const [option, setOption] = useState(0);
+    const classes = useStyles();
+    const { ticketId } = useParams();
+    const [option, setOption] = useState(0);
     const { currentTicket, setCurrentTicket } = useContext(TicketsContext)
-    const [ selectedQueuesMessage, setSelectedQueuesMessage] = useState();
+    const [selectedQueuesMessage, setSelectedQueuesMessage] = useState();
 
     useEffect(() => {
-        if(currentTicket.id !== null) {
+        if (currentTicket.id !== null) {
             setCurrentTicket({ id: currentTicket.id, code: '#open' })
         }
         if (!ticketId) {
@@ -60,27 +60,27 @@ const TicketAdvanced = (props) => {
         }
     }, [currentTicket])
 
-	const renderPlaceholder = () => {
-		return <Box className={classes.placeholderContainer}>
+    const renderPlaceholder = () => {
+        return <Box className={classes.placeholderContainer}>
             <div className={classes.placeholderItem}>{i18n.t("chat.noTicketMessage")}</div><br />
             <Button onClick={() => setOption(1)} variant="contained" color="primary">
                 Selecionar Ticket
             </Button>
         </Box>
-	}
+    }
 
-	const renderMessageContext = () => {
-		if (ticketId) {
-			return <Ticket/>
-		}
-		return renderPlaceholder()
-	}
+    const renderMessageContext = () => {
+        if (ticketId) {
+            return <Ticket />
+        }
+        return renderPlaceholder()
+    }
 
-	const renderTicketsManagerTabs = () => {
-		return <TicketsManagerTabs/>
-	}
+    const renderTicketsManagerTabs = () => {
+        return <TicketsManagerTabs />
+    }
 
-	return (
+    return (
         <TicketAdvancedLayout>
             <Box className={classes.header}>
                 <BottomNavigation
@@ -96,10 +96,10 @@ const TicketAdvanced = (props) => {
                 </BottomNavigation>
             </Box>
             <Box className={classes.content}>
-                { option === 0 ? renderMessageContext() : renderTicketsManagerTabs() }
+                {option === 0 ? renderMessageContext() : renderTicketsManagerTabs()}
             </Box>
         </TicketAdvancedLayout>
-	);
+    );
 };
 
 export default TicketAdvanced;

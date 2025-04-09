@@ -14,6 +14,8 @@ interface Response {
   hasMore: boolean;
 }
 
+
+
 const ListService = async ({
   companyId,
   searchParam,
@@ -23,27 +25,28 @@ const ListService = async ({
 }: Request): Promise<Response> => {
   let whereCondition = {};
 
-  if ( Number(kanban) === 0 ) {
-      if (searchParam) {
-        whereCondition = {
-          [Op.or]: [
-            { name: { [Op.like]: `%${searchParam}%` } },
-            { color: { [Op.like]: `%${searchParam}%` } }
-            // { kanban: { [Op.like]: `%${searchParam}%` } }
-          ]
-        };
-      }
-      const limit = 20;
-     // const offset = limit * (+pageNumber - 1);
+  if (Number(kanban) === 0) {
+    if (searchParam) {
+      whereCondition = {
+        [Op.or]: [
+          { name: { [Op.like]: `%${searchParam}%` } },
+          { color: { [Op.like]: `%${searchParam}%` } }
+          // { kanban: { [Op.like]: `%${searchParam}%` } }
+        ]
+      };
+    }
+    const limit = 20;
+    // const offset = limit * (+pageNumber - 1);
 
-     const  tags  = await Tag.findAll({
+    const tags = await Tag.findAll({
       where: { ...whereCondition, companyId, kanban },
-      limit,
-      offset,
+      // limit,
+      // offset,
       order: [["name", "ASC"]],
       subQuery: false,
       include: [
-        { model: ContactTag,
+        {
+          model: ContactTag,
           as: "contactTags",
           attributes: [],
           required: false
@@ -56,14 +59,14 @@ const ListService = async ({
         [fn('count', col('contactTags.tagId')), 'contactsCount']
       ],
       group:
-        [ "Tag.id" ]
+        ["Tag.id"]
     });
 
     const hasMore = tags.length > limit;
 
     return {
       tags,
-      hasMore
+      hasMore: false
     };
 
   } else {
@@ -78,14 +81,15 @@ const ListService = async ({
     }
     const limit = 20;
 
-    const  tags  = await Tag.findAll({
+    const tags = await Tag.findAll({
       where: { ...whereCondition, companyId, kanban },
-      limit,
-      offset,
+      // limit,
+      // offset,
       order: [["name", "ASC"]],
       subQuery: false,
       include: [
-        { model: TicketTag,
+        {
+          model: TicketTag,
           as: "ticketTags",
           attributes: [],
           required: false
@@ -99,14 +103,14 @@ const ListService = async ({
         [fn('count', col('ticketTags.tagId')), 'ticketsCount']
       ],
       group:
-        [ "Tag.id"]
+        ["Tag.id"]
     });
 
     const hasMore = tags.length > limit;
 
     return {
       tags,
-      hasMore
+      hasMore: false
     };
   }
 };

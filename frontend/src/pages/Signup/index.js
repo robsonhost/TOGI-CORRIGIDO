@@ -38,6 +38,7 @@ import ColorModeContext from "../../layout/themeContext";
 import { openApi } from "../../services/api";
 import { i18n } from "../../translate/i18n";
 import { countryRules } from "../../utils/countryRules";
+import { validateCpfCnpj } from '../../utils/validateCpfCnpj';
 const useStyles = makeStyles((theme) => ({
   root: {
     //marginTop: "20px",
@@ -258,6 +259,11 @@ const getPhoneValidationSchema = (maxLength, countryCode) => {
     );
 };
 
+function formatCPF(cpf) {
+    cpf = cpf.replace(/\D/g, '');
+  return cpf.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, '$1.$2.$3-$4');
+}
+
 const UserSchema = Yup.object().shape({
   name: Yup.string()
     .min(2, "Muito curto!")
@@ -273,13 +279,13 @@ const UserSchema = Yup.object().shape({
     .matches(/[A-Z]/, " ")
     .required("Senha é obrigatória"),
   email: Yup.string().email("E-mail inválido").required("E-mail é obrigatório"),
-  // phone: Yup.string()
-  //   .required("Phone é obrigatório")
-  //   .matches(
-  //     /^\d{13}$/,
-  //     "Digite o número completo no formato (XX) 9 XXXX-XXXX (apenas números)."
-  //   ),
-
+  document: Yup.string()
+            //.required('documento obrigatório')
+            .matches(
+              /[^\d]+/g,
+              //new RegExp(`^\\d{${11}}$`),
+              'Digite o documento completo no formato 000.000.000-00 ou 00.000.000/000-00 (apenas números)'
+            ),
   termo: Yup.boolean()
     .oneOf([true], "Você deve aceitar os termos para continuar.")
     .required("A aceitação dos termos é obrigatória"),
@@ -316,6 +322,7 @@ const SignUp = () => {
     email: "",
     password: "",
     phone: "",
+    document: "",
     companyId,
     companyName: "",
     planId: "",
@@ -350,9 +357,12 @@ const SignUp = () => {
   };
 
   const handleSignUp = async (values) => {
-    console.log(values);
-
+    
     try {
+      if(values?.document && (!validateCpfCnpj(values.document))){
+        toastError("CPF/CNPJ inválido")
+        return 
+      }
       await openApi.post("/auth/signup", values);
       toast.success(i18n.t("signup.toasts.success"));
       history.push("/login");
@@ -368,7 +378,6 @@ const SignUp = () => {
         <link rel="icon" href="/favicon.png" />
       </Helmet>
       <CssBaseline enableColorScheme />
-      {/* <div className={classes.leftScreen}></div> */}
       <SignUpContainer>
         <Card
           sx={{
@@ -398,7 +407,6 @@ const SignUp = () => {
             >
               Crie sua conta para começar
             </Typography>
-            {/* <form className={classes.form} noValidate onSubmit={handleSignUp}> */}
             <Formik
               initialValues={user}
               enableReinitialize={true}
@@ -505,11 +513,34 @@ const SignUp = () => {
                             ),
                           }}
                         />
-                        {/* {errors.phone && touched.phone ? (
-                          <div style={{ color: "red" }}>{errors.phone}</div>
-                        ) : null} */}
                       </Grid>
                     </Box>
+                    <Grid item xs={12}>
+                      <StyledFormLabel>
+                        {i18n.t("signup.form.document")}
+                      </StyledFormLabel>
+                      <Field
+                        as={StyledTextField}
+                        variant="outlined"
+                        fullWidth
+                        id="document"
+                        size="small"
+                        placeholder="000.000.000-00"
+                        name="document"
+                        error={touched.document && Boolean(errors.document)}
+                        helperText={touched.document && errors.document}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <Mail
+                                sx={{ color: "rgba(255, 255, 255, 0.7)" }}
+                              />
+                            </InputAdornment>
+                          ),
+                          style: { textTransform: "lowercase" },
+                        }}
+                      />
+                    </Grid>
                     <Grid item xs={12}>
                       <StyledFormLabel>
                         {i18n.t("signup.form.email")}
@@ -624,20 +655,6 @@ const SignUp = () => {
                         </div>
                       </div>
                     </Grid>
-
-                    {/* TOKEN */}
-                    {/* <Grid item xs={12}>
-                                    <Field
-                                        as={TextField}
-                                        variant="outlined"
-                                        fullWidth
-                                        id="token"
-                                        label={i18n.t("auth.token")}
-                                        name="token"
-                                        autoComplete="token"
-                                    />
-                                </Grid> */}
-
                     <Grid item xs={12}>
                       <StyledFormLabel htmlFor="plan-selection">
                         Plano

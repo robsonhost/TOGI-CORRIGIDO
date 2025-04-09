@@ -5,7 +5,7 @@ import Container from "@material-ui/core/Container";
 
 import MomentsUser from "../../components/MomentsUser";
 // import MomentsQueues from "../../components/MomentsQueues";
-
+import MainContainer from '../../components/MainContainer';
 import Title from "./Title";
 
 const useStyles = makeStyles((theme) => ({
@@ -36,12 +36,12 @@ const ChatMoments = () => {
   return (
 
     <div >
-      <Container maxWidth="lg" className={classes.container}>
+      <MainContainer>
         <Title variant="h5">Tempo Real</Title>
         <div className={classes.contactsHeader}>
           <MomentsUser />
         </div>
-      </Container>
+      </MainContainer>
     </div>
   );
 };

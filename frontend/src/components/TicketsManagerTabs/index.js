@@ -1,4 +1,4 @@
-import React, {  useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { useHistory } from "react-router-dom";
 
 import { makeStyles } from "@material-ui/core/styles";
@@ -13,7 +13,10 @@ import MoveToInboxIcon from "@material-ui/icons/MoveToInbox";
 import CheckBoxIcon from "@material-ui/icons/CheckBox";
 import MessageSharpIcon from "@material-ui/icons/MessageSharp";
 import ClockIcon from "@material-ui/icons/AccessTime";
-import IconButton from '@material-ui/core/IconButton';
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import LibraryAddCheckIcon from '@mui/icons-material/LibraryAddCheck';
+import GroupIcon from '@mui/icons-material/Group';
+
 
 import FilterListIcon from '@material-ui/icons/FilterList';
 
@@ -36,9 +39,11 @@ import { UsersFilter } from "../UsersFilter";
 import { StatusFilter } from "../StatusFilter";
 import { WhatsappsFilter } from "../WhatsappsFilter";
 import api from "../../services/api";
-import { Button, Snackbar } from "@material-ui/core";
-import { SpeedDial, SpeedDialAction } from "@mui/material";
+import { Box, Button, Snackbar } from "@material-ui/core";
+import { IconButton, SpeedDial, SpeedDialAction, Stack } from "@mui/material";
 import { QueueSelectedContext } from "../../context/QueuesSelected/QueuesSelectedContext";
+
+import AddIcon from '@mui/icons-material/Add';
 
 const useStyles = makeStyles((theme) => ({
   ticketsWrapper: {
@@ -114,7 +119,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: "center",
     // background: "#fafafa",
     background: theme.palette.optionsBackground,
-    padding: theme.spacing(1),
+    //padding: theme.spacing(1),
   },
 
   serachInputWrapper: {
@@ -355,27 +360,12 @@ const TicketsManagerTabs = () => {
           handleCloseOrOpenTicket(ticket);
         }}
       />
-      <div className={classes.serachInputWrapper}>
-        <SearchIcon className={classes.searchIcon} />
-        <InputBase
-          className={classes.searchInput}
-          inputRef={searchInputRef}
-          placeholder={i18n.t("tickets.search.placeholder")}
-          type="search"
-          onChange={handleSearch}
-        />
-        <IconButton color="primary"
-          aria-label="upload picture"
-          component="span"
-          onClick={handleFilter}
-        >
-          <FilterListIcon />
-        </IconButton>
-      </div>
+
+
 
       {filter === true && (
         <>
-       
+
           <TagsFilter onFiltered={handleSelectedTags} />
           <WhatsappsFilter onFiltered={handleSelectedWhatsapps} />
           <StatusFilter onFiltered={handleSelectedStatus} />
@@ -387,8 +377,126 @@ const TicketsManagerTabs = () => {
         </>
       )}
 
+
       <Paper elevation={0} square className={classes.tabsHeader}>
-        <Tabs
+
+        <Stack direction="row" spacing={2} sx={{ display: 'flex', alignItems: 'center', px: 2, py: 3, justifyContent: 'space-between' }}>
+
+          <Typography variant="h6" style={{ fontWeight: 'bold' }}>Conversas</Typography>
+
+          <Stack direction={'row'} sx={{ alignItems: 'center' }} spacing={1} >
+
+            <IconButton onClick={(e) => setNewTicketModalOpen(true)} sx={{ color: "#fff", background: '#ccc' }} aria-label="upload picture" component="span">
+              <AddIcon />
+            </IconButton>
+
+
+
+            <IconButton onClick={(e) => handleChangeTab(e, 'open')} sx={tab == 'open' ? { background: '#065183', color: '#fff' } : { color: "#fff", background: '#ccc' }} aria-label="upload picture" component="span">
+              <LibraryBooksIcon />
+            </IconButton>
+
+            <IconButton onClick={(e) => handleChangeTab(e, 'closed')} sx={tab == 'closed' ? { background: '#065183', color: '#fff' } : { color: "#fff", background: '#ccc' }} aria-label="upload picture" component="span">
+              <LibraryAddCheckIcon />
+            </IconButton>
+
+            <IconButton onClick={(e) => handleChangeTab(e, 'search')} sx={tab == 'search' ? { background: '#065183', color: '#fff' } : { color: "#fff", background: '#ccc' }} aria-label="upload picture" component="span">
+              <SearchIcon />
+            </IconButton>
+
+            <Box>
+              <Can
+                role={user.profile}
+                perform="tickets-manager:showall"
+                yes={() => (
+                  <FormControlLabel
+                    // label={i18n.t("tickets.buttons.showAll")}
+                    labelPlacement="start"
+                    style={{marginLeft: "1px"}}
+                    control={
+                      <Switch
+                        size="small"
+                        checked={showAllTickets}
+                        onChange={() =>
+                          setShowAllTickets((prevState) => !prevState)
+                        }
+                        name="showAllTickets"
+                        color="primary"
+                      />
+                    }
+                  />
+                )}
+              />
+              <SpeedDial
+                ariaLabel="Menu Actions"
+                className={classes.speedDial}
+                // hidden={hidden}
+                size="small"
+                icon={<OfflineBolt />}
+
+              >
+                {user.profile === 'admin' && (
+                  <SpeedDialAction
+                    icon={<DoneAll style={{ color: 'green' }} />}
+                    className={classes.closeAllFab}
+                    tooltipTitle={<span style={tooltipTitleStyle}>{i18n.t("ticketsManager.buttons.close")}&nbsp;Todos</span>}
+                    tooltipOpen
+                    onClick={(event) => {
+                      // handleClosed();
+                      handleSnackbarOpen();
+                    }}
+                  />
+                )}
+
+                <SpeedDialAction
+                  icon={<Add style={{ color: '#25D366' }} />}
+                  tooltipTitle={<span style={tooltipTitleStyle}>{i18n.t("ticketsManager.buttons.new")}&nbsp;Ticket</span>}
+                  tooltipOpen
+                  onClick={() => {
+                    // handleClosed();
+                    setNewTicketModalOpen(true);
+                  }}
+                />
+              </SpeedDial>
+            </Box>
+
+          </Stack>
+
+        </Stack>
+
+        <Stack direction={'row'} sx={{ alignItems: 'center' }} spacing={1} p={1} >
+          <div className={classes.serachInputWrapper}>
+
+            <SearchIcon className={classes.searchIcon} />
+            <InputBase
+              className={classes.searchInput}
+              inputRef={searchInputRef}
+              placeholder={i18n.t("tickets.search.placeholder")}
+              type="search"
+              onChange={handleSearch}
+            />
+            <IconButton color="primary"
+              aria-label="upload picture"
+              component="span"
+              onClick={handleFilter}
+            >
+              <FilterListIcon />
+            </IconButton>
+          </div>
+
+          <TicketsQueueSelect
+            style={{ marginLeft: 6 }}
+            selectedQueueIds={selectedQueueIds}
+            userQueues={user?.queues}
+            onChange={(values) => {
+              setSelectedQueueIds(values);
+              //history.push("/tickets");
+            }}
+          />
+        </Stack>
+
+
+        {/* <Tabs
           value={tab}
           onChange={handleChangeTab}
           variant="fullWidth"
@@ -396,29 +504,35 @@ const TicketsManagerTabs = () => {
           textColor="primary"
           aria-label="icon label tabs example"
         >
+
           <Tab
             value={"open"}
             icon={<MoveToInboxIcon />}
             label={i18n.t("tickets.tabs.open.title")}
             classes={{ root: classes.tab }}
           />
+
           <Tab
             value={"closed"}
             icon={<CheckBoxIcon />}
             label={i18n.t("tickets.tabs.closed.title")}
             classes={{ root: classes.tab }}
           />
+
           <Tab
             value={"search"}
             icon={<SearchIcon />}
             label={i18n.t("tickets.tabs.search.title")}
             classes={{ root: classes.tab }}
           />
-        </Tabs>
+        </Tabs> */}
       </Paper>
+
+
+
       <Paper square elevation={0} className={classes.ticketOptionsBox}>
         <>
-          <Can
+          {/* <Can
             role={user.profile}
             perform="tickets-manager:showall"
             yes={() => (
@@ -438,8 +552,8 @@ const TicketsManagerTabs = () => {
                 }
               />
             )}
-          />
-          <SpeedDial
+          /> */}
+          {/* <SpeedDial
             ariaLabel="Menu Actions"
             className={classes.speedDial}
             // hidden={hidden}
@@ -459,6 +573,7 @@ const TicketsManagerTabs = () => {
                 }}
               />
             )}
+
             <SpeedDialAction
               icon={<Add style={{ color: '#25D366' }} />}
               tooltipTitle={<span style={tooltipTitleStyle}>{i18n.t("ticketsManager.buttons.new")}&nbsp;Ticket</span>}
@@ -468,9 +583,9 @@ const TicketsManagerTabs = () => {
                 setNewTicketModalOpen(true);
               }}
             />
-          </SpeedDial>
+          </SpeedDial> */}
         </>
-        <TicketsQueueSelect
+        {/* <TicketsQueueSelect
           style={{ marginLeft: 6 }}
           selectedQueueIds={selectedQueueIds}
           userQueues={user?.queues}
@@ -478,8 +593,9 @@ const TicketsManagerTabs = () => {
             setSelectedQueueIds(values);
             //history.push("/tickets");
           }}
-        />
+        /> */}
       </Paper>
+
       <TabPanel
         value={tab}
         name="open"
@@ -628,6 +744,7 @@ const TicketsManagerTabs = () => {
           />
         </Paper>
       </TabPanel>
+
       <TabPanel value={tab} name="closed" className={classes.ticketsWrapper}>
         <TicketsList
           status="closed"
@@ -636,6 +753,7 @@ const TicketsManagerTabs = () => {
         // handleChangeTab={handleChangeTabOpen}
         />
       </TabPanel>
+
       <TabPanel value={tab} name="search" className={classes.ticketsWrapper}>
         {profile === "admin" && (
           <>

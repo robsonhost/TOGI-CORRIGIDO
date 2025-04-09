@@ -15,17 +15,19 @@ const SyncTags = async ({
   ticketId,
 }: Request): Promise<Tag[] | null> => {
   // Filtra tags associadas ao contato (kanban === 0)
-  const contactTagList = tags
+  let contactTagList = [];
+  let ticketTagList = [];
+  contactTagList = tags
     .filter(tag => tag.kanban === 0)
     .map(tag => ({ tagId: tag.id, contactId }));
 
   // Filtra tags associadas ao ticket (kanban === 1)
-  const ticketTagList = tags
+  ticketTagList = tags
     .filter(tag => tag.kanban === 1)
     .map(tag => ({ tagId: tag.id, ticketId }));
 
   // Sincroniza tags do contato
-  if (contactTagList.length > 0) {
+  if ( contactTagList && (contactTagList?.length > 0)) {
     // Remove todas as tags antigas associadas ao contato
     await ContactTag.destroy({ where: { contactId } });
     // Adiciona as novas tags ao contato
@@ -35,15 +37,17 @@ const SyncTags = async ({
     await ContactTag.destroy({ where: { contactId } });
   }
 
-  // Sincroniza tags do ticket
-  if (ticketTagList.length > 0) {
-    // Remove todas as tags antigas associadas ao ticket
-    await TicketTag.destroy({ where: { ticketId } });
-    // Adiciona as novas tags ao ticket
-    await TicketTag.bulkCreate(ticketTagList);
-  } else {
-    // Se nenhuma tag foi passada, remove todas as tags do ticket
-    await TicketTag.destroy({ where: { ticketId } });
+  if(ticketId){
+    // Sincroniza tags do ticket
+    if ( ticketTagList && (ticketTagList.length > 0)) {
+      // Remove todas as tags antigas associadas ao ticket
+      await TicketTag.destroy({ where: { ticketId } });
+      // Adiciona as novas tags ao ticket
+      await TicketTag.bulkCreate(ticketTagList);
+    } else {
+      // Se nenhuma tag foi passada, remove todas as tags do ticket
+      await TicketTag.destroy({ where: { ticketId } });
+    }
   }
 
   return tags; // Retorna as tags sincronizadas

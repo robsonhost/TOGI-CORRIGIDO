@@ -30,6 +30,10 @@ const drawerWidth = 320;
 
 const useStyles = makeStyles((theme) => ({
   root: {
+    [theme.breakpoints.down("sm")]: {
+      paddingTop: "18px",
+    },
+    
     display: "flex",
     height: "100%",
     position: "relative",

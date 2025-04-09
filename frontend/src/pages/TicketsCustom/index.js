@@ -11,17 +11,14 @@ import { socketConnection } from "../../services/socket";
 
 import { i18n } from "../../translate/i18n";
 import { Hidden } from "@material-ui/core";
+import MainContainer from '../../components/MainContainer';
 
 const useStyles = makeStyles(theme => ({
-	chatContainer: {
-		flex: 1,
-		// backgroundColor: "#eee",
-		// padding: theme.spacing(4),
-		padding: "2px",
-		height: `calc(100% - 48px)`,
-		overflowY: "hidden",
+	chatContainer:{
+		padding: "78px 5px 5px 5px",
+		height: `100vh`,
+		overflow:"hidden"
 	},
-
 	chatPapper: {
 		// backgroundColor: "red",
 		display: "flex",
@@ -55,7 +52,8 @@ const TicketsCustom = () => {
 	const { ticketId } = useParams();
 
 	return (
-			<div className={classes.chatContainer}>
+		<MainContainer>
+			{/* <MainContainer> */}
 				<div className={classes.chatPapper}>
 					<Grid container spacing={0}>
 						<Grid item xs={12} md={4} className={classes.contactsWrapper}>
@@ -77,7 +75,8 @@ const TicketsCustom = () => {
 						</Grid>
 					</Grid>
 				</div>
-			</div>
+			{/* </MainContainer> */}
+		</MainContainer>
 	);
 };
 

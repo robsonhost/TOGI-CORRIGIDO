@@ -12,7 +12,7 @@ import api from "../../services/api";
 import axios from "axios";
 import usePlans from "../../hooks/usePlans";
 import { AuthContext } from "../../context/Auth/AuthContext";
-
+import MainContainer from '../../components/MainContainer';
 const useStyles = makeStyles((theme) => ({
   mainPaper: {
     flex: 1,
@@ -128,7 +128,6 @@ const MessagesAPI = () => {
                   as={TextField}
                   label={i18n.t("messagesAPI.textMessage.token")}
                   name="token"
-                  autoFocus
                   variant="outlined"
                   margin="dense"
                   fullWidth
@@ -141,7 +140,6 @@ const MessagesAPI = () => {
                   as={TextField}
                   label={i18n.t("messagesAPI.textMessage.number")}
                   name="number"
-                  autoFocus
                   variant="outlined"
                   margin="dense"
                   fullWidth
@@ -154,7 +152,6 @@ const MessagesAPI = () => {
                   as={TextField}
                   label={i18n.t("messagesAPI.textMessage.body")}
                   name="body"
-                  autoFocus
                   variant="outlined"
                   margin="dense"
                   fullWidth
@@ -167,7 +164,6 @@ const MessagesAPI = () => {
                   as={TextField}
                   label={i18n.t("messagesAPI.textMessage.userId")}
                   name="userId"
-                  autoFocus
                   variant="outlined"
                   margin="dense"
                   fullWidth
@@ -179,7 +175,6 @@ const MessagesAPI = () => {
                   as={TextField}
                   label={i18n.t("messagesAPI.textMessage.queueId")}
                   name="queueId"
-                  autoFocus
                   variant="outlined"
                   margin="dense"
                   fullWidth
@@ -232,7 +227,6 @@ const MessagesAPI = () => {
                   as={TextField}
                   label={i18n.t("messagesAPI.mediaMessage.token")}
                   name="token"
-                  autoFocus
                   variant="outlined"
                   margin="dense"
                   fullWidth
@@ -245,7 +239,6 @@ const MessagesAPI = () => {
                   as={TextField}
                   label={i18n.t("messagesAPI.mediaMessage.number")}
                   name="number"
-                  autoFocus
                   variant="outlined"
                   margin="dense"
                   fullWidth
@@ -258,7 +251,6 @@ const MessagesAPI = () => {
                   as={TextField}
                   label={i18n.t("messagesAPI.textMessage.body")}
                   name="body"
-                  autoFocus
                   variant="outlined"
                   margin="dense"
                   fullWidth
@@ -270,7 +262,6 @@ const MessagesAPI = () => {
                   as={TextField}
                   label={i18n.t("messagesAPI.textMessage.userId")}
                   name="userId"
-                  autoFocus
                   variant="outlined"
                   margin="dense"
                   fullWidth
@@ -282,7 +273,6 @@ const MessagesAPI = () => {
                   as={TextField}
                   label={i18n.t("messagesAPI.textMessage.queueId")}
                   name="queueId"
-                  autoFocus
                   variant="outlined"
                   margin="dense"
                   fullWidth
@@ -315,12 +305,7 @@ const MessagesAPI = () => {
   }
 
   return (
-    <Paper
-      className={classes.mainPaper}
-      style={{marginLeft: "5px"}}
-      // className={classes.elementMargin}
-      variant="outlined"
-    >
+    <MainContainer>
       <Typography variant="h5">
         {i18n.t("messagesAPI.API.title")}
       </Typography>
@@ -416,7 +401,7 @@ const MessagesAPI = () => {
           {renderFormMessageMedia()}
         </Grid>
       </Grid>
-    </Paper>
+    </MainContainer>
   );
 };
 

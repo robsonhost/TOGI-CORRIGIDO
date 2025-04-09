@@ -69,7 +69,7 @@ import axios from "axios";
 
 import { getBackendUrl } from "../../config";
 import useCompanySettings from "../../hooks/useSettings/companySettings";
-import { private_excludeVariablesFromRoot } from "@mui/material";
+import { private_excludeVariablesFromRoot, TextField } from "@mui/material";
 import { ForwardMessageContext } from "../../context/ForwarMessage/ForwardMessageContext";
 // import { Submenus } from "./submenu";
 
@@ -343,6 +343,7 @@ const MessageInput = ({ ticketId, ticketStatus }) => {
 
   const { selectedMessages, setForwardMessageModalOpen, showSelectMessageCheckbox } = useContext(ForwardMessageContext);
   const { setEditingMessage, editingMessage } = useContext(EditMessageContext);
+  const [titleMedia, setTitleMedia] = useState('');
 
 
 
@@ -519,6 +520,8 @@ const MessageInput = ({ ticketId, ticketStatus }) => {
         formData.append("fromMe", true);
         formData.append("isPrivate", privateMessage);
         formData.append("medias", media);
+        formData.append("mediaTitle", titleMedia);
+
         privateMessage ?
           formData.append("body", `\u200d`)
           :
@@ -531,6 +534,7 @@ const MessageInput = ({ ticketId, ticketStatus }) => {
 
     setLoading(false);
     setMedias([]);
+    setTitleMedia('');
     setPrivateMessage(false);
   };
 
@@ -681,8 +685,9 @@ const MessageInput = ({ ticketId, ticketStatus }) => {
       formData.append("medias", blob, filename);
       formData.append("body", privateMessage ? `\u200d` : "");
       formData.append("fromMe", true);
+      formData.append("mediaTitle", titleMedia);
       if (replyingMessage) {
-        formData.append("quotedMsgId",replyingMessage?.id)
+        formData.append("quotedMsgId", replyingMessage?.id)
       }
 
       await api.post(`/messages/${ticketId}`, formData);
@@ -692,6 +697,7 @@ const MessageInput = ({ ticketId, ticketStatus }) => {
     }
     setReplyingMessage(null);
     setLoading(false);
+    setTitleMedia('');
   };
 
   const handleUploadQuickMessageMedia = async (blob, message) => {
@@ -704,8 +710,9 @@ const MessageInput = ({ ticketId, ticketStatus }) => {
       formData.append("medias", blob, filename);
       formData.append("body", privateMessage ? `\u200d${message}` : message);
       formData.append("fromMe", true);
+      formData.append("mediaTitle", titleMedia);
       if (replyingMessage) {
-        formData.append("quotedMsgId",replyingMessage?.id)
+        formData.append("quotedMsgId", replyingMessage?.id)
       }
 
       await api.post(`/messages/${ticketId}`, formData);
@@ -715,6 +722,7 @@ const MessageInput = ({ ticketId, ticketStatus }) => {
     }
     setReplyingMessage(null);
     setLoading(false);
+    setTitleMedia('');
   };
 
   const handleUploadAudio = async () => {
@@ -733,8 +741,10 @@ const MessageInput = ({ ticketId, ticketStatus }) => {
       formData.append("medias", blob, filename);
       formData.append("body", filename);
       formData.append("fromMe", true);
+      formData.append("mediaTitle", titleMedia);
+
       if (replyingMessage) {
-        formData.append("quotedMsgId",replyingMessage?.id)
+        formData.append("quotedMsgId", replyingMessage?.id)
       }
 
       await api.post(`/messages/${ticketId}`, formData);
@@ -745,6 +755,7 @@ const MessageInput = ({ ticketId, ticketStatus }) => {
     setReplyingMessage(null);
     setRecording(false);
     setLoading(false);
+    setTitleMedia('');
   };
 
   const handleCancelAudio = async () => {
@@ -815,7 +826,10 @@ const MessageInput = ({ ticketId, ticketStatus }) => {
         <IconButton
           aria-label="cancel-upload"
           component="span"
-          onClick={(e) => setMedias([])}
+          onClick={(e) => {
+            setMedias([]);
+            setTitleMedia('');
+          }}
         >
           <Cancel className={classes.sendMessageIcons} />
         </IconButton>
@@ -862,6 +876,18 @@ const MessageInput = ({ ticketId, ticketStatus }) => {
               }}
               defaultValue={medias[0].name}
             />
+            <TextField value={titleMedia}
+              defaultValue={medias[0].name}
+              onKeyPress={(e) => {
+                if (e.key === "Enter") {
+                  handleUploadMedia();
+                }
+              }}
+              inputRef={function (input) {
+                if (input != null) {
+                  input.focus();
+                }
+              }} onChange={e => setTitleMedia(e.target.value)} fullWidth id="outlined-basic" label="Digite uma mensagem" variant="outlined" />
           </Grid>
         )}
         <IconButton

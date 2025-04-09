@@ -468,7 +468,6 @@ const MessagesList = ({
   const [lgpdDeleteMessage, setLGPDDeleteMessage] = useState(false);
   const { selectedQueuesMessage } = useContext(QueueSelectedContext);
 
-  // const { showSelectMessageCheckbox } = useContext(ForwardMessageContext);
   const { selectedMessages, setForwardMessageModalOpen, showSelectMessageCheckbox, setShowSelectMessageCheckbox, forwardMessageModalOpen } = useContext(ForwardMessageContext);
 
   const [showEmoji, setShowEmoji] = useState(false);

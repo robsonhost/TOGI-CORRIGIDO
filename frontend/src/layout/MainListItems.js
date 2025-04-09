@@ -295,18 +295,16 @@ function ListItemLink(props) {
                   className={classes.badge}
                 >
                   <Avatar
-                    className={`${classes.iconHoverActive} ${
-                      isActive ? "active" : ""
-                    }`}
+                    className={`${classes.iconHoverActive} ${isActive ? "active" : ""
+                      }`}
                   >
                     {icon}
                   </Avatar>
                 </Badge>
               ) : (
                 <Avatar
-                  className={`${classes.iconHoverActive} ${
-                    isActive ? "active" : ""
-                  }`}
+                  className={`${classes.iconHoverActive} ${isActive ? "active" : ""
+                    }`}
                 >
                   {icon}
                 </Avatar>
@@ -423,6 +421,7 @@ const MainListItems = (props, { collapsed }) => {
   const [openFlowSubmenu, setOpenFlowSubmenu] = useState(false);
   const [openDashboardSubmenu, setOpenDashboardSubmenu] = useState(false);
 
+
   const [showOpenAi, setShowOpenAi] = useState(false);
   const [showIntegrations, setShowIntegrations] = useState(false);
   const greaterThenSm = useMediaQuery(theme.breakpoints.up("md"));
@@ -432,6 +431,7 @@ const MainListItems = (props, { collapsed }) => {
 
   const [version, setVersion] = useState(false);
   const [managementHover, setManagementHover] = useState(false);
+  const [kanbanHover, setKanbanHover] = useState(false);
   const [campaignHover, setCampaignHover] = useState(false);
   const [flowHover, setFlowHover] = useState(false);
   const { list } = useHelps(); // INSERIR
@@ -455,7 +455,7 @@ const MainListItems = (props, { collapsed }) => {
 
     const socket = socketConnection({ companyId, userId: user.id });
     if (!socket) {
-      return () => {};
+      return () => { };
     }
     const ImageUrl = user.profileImage;
 
@@ -520,7 +520,7 @@ const MainListItems = (props, { collapsed }) => {
     const companyId = user.companyId;
     const socket = socketConnection({ companyId, userId: user.id });
     if (!socket) {
-      return () => {};
+      return () => { };
     }
     socket.on(`company-${companyId}-chat`, (data) => {
       if (data.action === "new-message") {
@@ -611,6 +611,9 @@ const MainListItems = (props, { collapsed }) => {
       toastError(err);
     }
   };
+
+  const isKanbanActive = location.pathname === "/kanban" || location.pathname === "/TagsKanban";
+
   const isManagementActive =
     location.pathname === "/" ||
     location.pathname.startsWith("/reports") ||
@@ -646,7 +649,7 @@ const MainListItems = (props, { collapsed }) => {
       <Can
         role={
           (user.profile === "user" && user.showDashboard === "enabled") ||
-          user.allowRealTime === "enabled"
+            user.allowRealTime === "enabled"
             ? "admin"
             : user.profile
         }
@@ -666,9 +669,8 @@ const MainListItems = (props, { collapsed }) => {
               >
                 <ListItemIcon>
                   <Avatar
-                    className={`${classes.iconHoverActive} ${
-                      isManagementActive || managementHover ? "active" : ""
-                    }`}
+                    className={`${classes.iconHoverActive} ${isManagementActive || managementHover ? "active" : ""
+                      }`}
                   >
                     <HomeTrendUp />
                   </Avatar>
@@ -762,12 +764,67 @@ const MainListItems = (props, { collapsed }) => {
 
       {showKanban && (
         <>
-          <ListItemLink
-            to="/kanban"
-            primary={i18n.t("mainDrawer.listItems.kanban")}
-            icon={<Kanban />}
-            tooltip={collapsed}
-          />
+
+          <>
+            <Tooltip
+              title={collapsed ? i18n.t("mainDrawer.listItems.kanban") : ""}
+              placement="right"
+            >
+              <ListItem
+                dense
+                button
+                onClick={() => setOpenKanbanSubmenu((prev) => !prev)}
+                onMouseEnter={() => setKanbanHover(true)}
+                onMouseLeave={() => setKanbanHover(false)}
+              >
+                <ListItemIcon>
+                  <Avatar
+                    className={`${classes.iconHoverActive} ${isKanbanActive || kanbanHover ? "active" : ""}`}
+
+                  >
+                    <Kanban />
+                  </Avatar>
+                </ListItemIcon>
+                <ListItemText
+                  primary={
+                    <Typography className={classes.listItemText}>
+                      {i18n.t("mainDrawer.listItems.kanban")}
+                    </Typography>
+                  }
+                />
+                {openKanbanSubmenu ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+              </ListItem>
+            </Tooltip>
+            <Collapse
+              in={openKanbanSubmenu}
+              timeout="auto"
+              unmountOnExit
+              style={{
+                backgroundColor:
+                  theme.mode === "light"
+                    ? "rgba(120,120,120,0.1)"
+                    : "rgba(120,120,120,0.5)",
+              }}
+            >
+              <ListItemLink
+                to="/kanban"
+                primary={i18n.t("mainDrawer.listItems.quadros")}
+                icon={<Kanban />}
+                tooltip={collapsed}
+              />
+
+              <ListItemLink
+                to="/TagsKanban"
+                primary={i18n.t("mainDrawer.listItems.quadrosConfig")}
+                icon={<Kanban />}
+                tooltip={collapsed}
+              />
+
+            </Collapse>
+          </>
+
+
+
         </>
       )}
 
@@ -860,11 +917,10 @@ const MainListItems = (props, { collapsed }) => {
                       >
                         <ListItemIcon>
                           <Avatar
-                            className={`${classes.iconHoverActive} ${
-                              isCampaignRouteActive || campaignHover
-                                ? "active"
-                                : ""
-                            }`}
+                            className={`${classes.iconHoverActive} ${isCampaignRouteActive || campaignHover
+                              ? "active"
+                              : ""
+                              }`}
                           >
                             <VolumeHigh />
                           </Avatar>

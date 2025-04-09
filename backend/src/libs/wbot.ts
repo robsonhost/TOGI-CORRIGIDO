@@ -131,7 +131,7 @@ export const initWASocket = async (whatsapp: Whatsapp): Promise<Session> => {
             creds: state.creds,
             keys: makeCacheableSignalKeyStore(state.keys, logger),
           },
-          version,
+          version: [2,3000,1021180439] ,
           defaultQueryTimeoutMs: 60000,
           // retryRequestDelayMs: 250,
           // keepAliveIntervalMs: 1000 * 60 * 10 * 3,
@@ -143,144 +143,91 @@ export const initWASocket = async (whatsapp: Whatsapp): Promise<Session> => {
 
         ////////////////////////////////////////////////////////////////
 
-        setTimeout(async () => {
+        const processMessages = async (whatsapp) => {
           const wpp = await Whatsapp.findByPk(whatsapp.id);
-          console.log("Status:::::", wpp.status)
-          if (wpp?.importOldMessages && wpp.status === "CONNECTED") {
-            let dateOldLimit = new Date(wpp.importOldMessages).getTime();
-            let dateRecentLimit = new Date(wpp.importRecentMessages).getTime();
+          if (!wpp || wpp.status !== "CONNECTED" || !wpp.importOldMessages) return;
 
-            addLogs({
-              fileName: `preparingImportMessagesWppId${whatsapp.id}.txt`, forceNewFile: true,
-              text: `Aguardando conexão para iniciar a importação de mensagens:
-  Whatsapp nome: ${wpp.name}
-  Whatsapp Id: ${wpp.id}
-  Criação do arquivo de logs: ${moment().format("DD/MM/YYYY HH:mm:ss")}
-  Selecionado Data de inicio de importação: ${moment(dateOldLimit).format("DD/MM/YYYY HH:mm:ss")}
-  Selecionado Data final da importação: ${moment(dateRecentLimit).format("DD/MM/YYYY HH:mm:ss")}
-  `})
-            /*             await wpp.update({
-                          importOldMessages:null,
-                          importRecentMessages:null,
-                          closedTicketsPostImported:false,
-                          statusImportMessages:""
-                        }) */
+          const dateOldLimit = new Date(wpp.importOldMessages).getTime();
+          const dateRecentLimit = new Date(wpp.importRecentMessages).getTime();
 
+          // addLogs({
+          //   fileName: `preparingImportMessagesWppId${whatsapp.id}.txt`,
+          //   forceNewFile: true,
+          //   text: `Aguardando conexão para iniciar a importação de mensagens:
+          //   Whatsapp Nome: ${wpp.name}
+          //   Whatsapp ID: ${wpp.id}
+          //   Criação do arquivo de logs: ${moment().format("DD/MM/YYYY HH:mm:ss")}
+          //   Data de Início da Importação: ${moment(dateOldLimit).format("DD/MM/YYYY HH:mm:ss")}
+          //   Data Final da Importação: ${moment(dateRecentLimit).format("DD/MM/YYYY HH:mm:ss")}
+          //   `
+          // });
 
+          await wpp.update({ statusImportMessages: Date.now() });
 
-            const statusImportMessages = new Date().getTime();
+          wsocket.ev.on("messaging-history.set", async (messageSet) => {
+            console.log("Evento");
+            console.log(!messageSet?.messages?.length);
 
-            await wpp.update({
-              statusImportMessages
-            });
-            wsocket.ev.on("messaging-history.set", async (messageSet: any) => {
-              //if(messageSet.isLatest){
+            if (!messageSet?.messages?.length) return;
 
-              const statusImportMessages = new Date().getTime();
+            const whatsappId = whatsapp.id;
+            const filteredDateMessages = filterMessages(messageSet.messages, wpp, dateOldLimit, dateRecentLimit);
 
-              await wpp.update({
-                statusImportMessages
-              });
-              const whatsappId = whatsapp.id;
-              let filteredMessages = messageSet.messages
-              let filteredDateMessages = []
-              filteredMessages.forEach(msg => {
-                const timestampMsg = Math.floor(msg.messageTimestamp["low"] * 1000)
-                if (isValidMsg(msg) && dateOldLimit < timestampMsg && dateRecentLimit > timestampMsg) {
-                  if (msg.key?.remoteJid.split("@")[1] != "g.us") {
-                    addLogs({
-                      fileName: `preparingImportMessagesWppId${whatsapp.id}.txt`, text: `Adicionando mensagem para pos processamento:
-  Não é Mensagem de GRUPO >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-  Data e hora da mensagem: ${moment(timestampMsg).format("DD/MM/YYYY HH:mm:ss")}
-  Contato da Mensagem : ${msg.key?.remoteJid}
-  Tipo da mensagem : ${getTypeMessage(msg)}
+            // if (!dataMessages[whatsappId]) {
+            //   dataMessages[whatsappId] = [];
+            // }
+            // dataMessages[whatsappId].unshift(...filteredDateMessages);
 
-  `})
-                    filteredDateMessages.push(msg)
-                  } else {
-                    if (wpp?.importOldMessagesGroups) {
-                      addLogs({
-                        fileName: `preparingImportMessagesWppId${whatsapp.id}.txt`, text: `Adicionando mensagem para pos processamento:
-  Mensagem de GRUPO >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-  Data e hora da mensagem: ${moment(timestampMsg).format("DD/MM/YYYY HH:mm:ss")}
-  Contato da Mensagem : ${msg.key?.remoteJid}
-  Tipo da mensagem : ${getTypeMessage(msg)}
+            notifyClient(wpp);
 
-  `})
-                      filteredDateMessages.push(msg)
-                    }
-                  }
-                }
+            setTimeout(() => checkAndStartImport(wpp, filteredDateMessages), 45000);
+          });
+        };
 
-              });
+        const filterMessages = (messages, wpp, dateOldLimit, dateRecentLimit) => {
+          return messages.filter(msg => {
+            const timestampMsg = Math.floor(msg.messageTimestamp?.low * 1000);
+            if (!isValidMsg(msg) || timestampMsg < dateOldLimit || timestampMsg > dateRecentLimit) return false;
 
+            const isGroupMessage = msg.key?.remoteJid?.endsWith("@g.us");
+            if (isGroupMessage && !wpp.importOldMessagesGroups) return false;
 
-              if (!dataMessages?.[whatsappId]) {
-                dataMessages[whatsappId] = [];
+            // addLogs({
+            //   fileName: `preparingImportMessagesWppId${wpp.id}.txt`,
+            //   text: `Adicionando mensagem para pós-processamento:
+            //   ${isGroupMessage ? "Mensagem de GRUPO" : "Não é Mensagem de GRUPO"}
+            //   Data e Hora: ${moment(timestampMsg).format("DD/MM/YYYY HH:mm:ss")}
+            //   Contato: ${msg.key?.remoteJid}
+            //   Tipo: ${getTypeMessage(msg)}
+            //   `
+            // });
 
-                dataMessages[whatsappId].unshift(...filteredDateMessages);
-              } else {
-                dataMessages[whatsappId].unshift(...filteredDateMessages);
-              }
+            return true;
+          });
+        };
 
-              setTimeout(async () => {
-                const wpp = await Whatsapp.findByPk(whatsappId);
+        const notifyClient = (wpp) => {
+          io.emit(`importMessages-${wpp.companyId}`, { action: "update", status: { this: -1, all: -1 } });
+          io.emit("whatsappSession", { action: "update", session: wpp });
+        };
 
+        const checkAndStartImport = async (wpp, filteredDateMessages) => {
+          const updatedWpp = await Whatsapp.findByPk(wpp.id);
+          if (!updatedWpp?.importOldMessages) return;
 
+          const lastStatusTimestamp = parseInt(updatedWpp.statusImportMessages);
+          if (!lastStatusTimestamp || isNaN(lastStatusTimestamp)) return;
 
-
-                io.emit(`importMessages-${wpp.companyId}`, {
-                  action: "update",
-                  status: { this: -1, all: -1 }
-                });
-
-
-
-                io.emit("whatsappSession", {
-                  action: "update",
-                  session: wpp
-                });
-                //console.log(JSON.stringify(wpp, null, 2));
-              }, 500);
-
-              setTimeout(async () => {
-
-
-                const wpp = await Whatsapp.findByPk(whatsappId);
-
-                if (wpp?.importOldMessages) {
-                  let isTimeStamp = !isNaN(
-                    new Date(Math.floor(parseInt(wpp?.statusImportMessages))).getTime()
-                  );
-
-                  if (isTimeStamp) {
-                    const ultimoStatus = new Date(
-                      Math.floor(parseInt(wpp?.statusImportMessages))
-                    ).getTime();
-                    const dataLimite = +add(ultimoStatus, { seconds: +45 }).getTime();
-
-                    if (dataLimite < new Date().getTime()) {
-                      //console.log("Pronto para come?ar")
-                      ImportWhatsAppMessageService(wpp.id)
-                      wpp.update({
-                        statusImportMessages: "Running"
-                      })
-
-                    } else {
-                      //console.log("Aguardando inicio")
-                    }
-                  }
-                }
-                io.emit("whatsappSession", {
-                  action: "update",
-                  session: wpp
-                });
-              }, 1000 * 45);
-
-            });
+          const dataLimite = add(lastStatusTimestamp, { seconds: 45 }).getTime();
+          if (dataLimite < Date.now()) {
+            ImportWhatsAppMessageService(updatedWpp.id, filteredDateMessages);
+            await updatedWpp.update({ statusImportMessages: "Running" });
           }
 
-        }, 2500);
+          io.emit("whatsappSession", { action: "update", session: updatedWpp });
+        };
+
+        setTimeout(() => processMessages(whatsapp), 2500);
 
 
 

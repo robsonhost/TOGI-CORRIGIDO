@@ -65,7 +65,7 @@ function cleaner(array) {
 
 
 
-const ImportWhatsAppMessageService = async (whatsappId: number | string) => {
+const ImportWhatsAppMessageService = async (whatsappId: number | string, filteredDateMessages: any) => {
   let whatsApp = await Whatsapp.findByPk(whatsappId);
 
 
@@ -74,45 +74,45 @@ const ImportWhatsAppMessageService = async (whatsappId: number | string) => {
   try {
 
     const io = getIO();
-    const messages = cleaner(dataMessages[whatsappId])
+    const messages = cleaner(filteredDateMessages)
     let dateOldLimit = new Date(whatsApp.importOldMessages).getTime();
     let dateRecentLimit = new Date(whatsApp.importRecentMessages).getTime();
 
-    addLogs({fileName: `processImportMessagesWppId${whatsappId}.txt`,forceNewFile:true,
-    text:`Aguardando conexão para iniciar a importação de mensagens:
-    Whatsapp nome: ${whatsApp.name}
-    Whatsapp Id: ${whatsApp.id}
-    Criação do arquivo de logs: ${moment().format("DD/MM/YYYY HH:mm:ss")}
-    Selecionado Data de inicio de importação: ${moment(dateOldLimit).format("DD/MM/YYYY HH:mm:ss")} 
-    Selecionado Data final da importação: ${moment(dateRecentLimit).format("DD/MM/YYYY HH:mm:ss")} 
-    `
-  })
+  //   addLogs({fileName: `processImportMessagesWppId${whatsappId}.txt`,forceNewFile:true,
+  //   text:`Aguardando conexão para iniciar a importação de mensagens:
+  //   Whatsapp nome: ${whatsApp.name}
+  //   Whatsapp Id: ${whatsApp.id}
+  //   Criação do arquivo de logs: ${moment().format("DD/MM/YYYY HH:mm:ss")}
+  //   Selecionado Data de inicio de importação: ${moment(dateOldLimit).format("DD/MM/YYYY HH:mm:ss")}
+  //   Selecionado Data final da importação: ${moment(dateRecentLimit).format("DD/MM/YYYY HH:mm:ss")}
+  //   `
+  // })
 
+    console.log("inicio");
 
     const qtd = messages.length
     let i = 0
         while( i < qtd){
-    
+
             try {
               const msg = messages[i]
-              addLogs({fileName: `processImportMessagesWppId${whatsappId}.txt`,text:`
-Mensagem ${i+1} de ${qtd}
-              `})
+              // addLogs({fileName: `processImportMessagesWppId${whatsappId}.txt`,text:`Mensagem ${i+1} de ${qtd}
+              // `})
              await handleMessage(msg, wbot, whatsApp.companyId, true);
-    
+
               if(i%2 === 0){
                 const timestampMsg = Math.floor(msg.messageTimestamp["low"] * 1000)
                 io.emit(`importMessages-${whatsApp.companyId}`, {
                   action: "update",
                   status:{this:i+1, all:qtd, date:moment(timestampMsg).format("DD/MM/YY HH:mm:ss")}
                 });
-    
+
               }
-             
-    
+
+
               if (i+1 === qtd) {
-                dataMessages[whatsappId] = [];
-    
+               // dataMessages[whatsappId] = [];
+
                 if(whatsApp.closedTicketsPostImported){
                  await closeTicketsImported(whatsappId)
                 }
@@ -121,18 +121,19 @@ Mensagem ${i+1} de ${qtd}
                   importOldMessages: null,
                   importRecentMessages:null
                 });
-    
-    
-                
+
+
+
                 io.emit(`importMessages-${whatsApp.companyId}`, {
                   action: "refresh",
                 });
               }
             } catch (error) {}
-    
-            i++
-        } 
 
+            i++
+        }
+
+      console.log("fim");
 
   } catch (error) {
     throw new AppError("ERR_NOT_MESSAGE_TO_IMPORT", 403);

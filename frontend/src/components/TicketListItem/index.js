@@ -334,7 +334,7 @@ const TicketListItem = ({ ticket }) => {
         let bodyRequest = {}
         if(ticket.status === 'pending'){
             bodyRequest = {
-                status: closed,
+                status: 'closed',
                 userId: user?.id || null,
                 sendFarewellMessage: false,
                 amountUsedBotQueues: 0

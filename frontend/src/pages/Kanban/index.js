@@ -9,7 +9,7 @@ import { useHistory } from 'react-router-dom';
 import { socketConnection } from "../../services/socket";
 import TagModal from "../../components/TagModal";
 import { Box, Button } from "@material-ui/core";
-
+import MainContainer from '../../components/MainContainer';
 const useStyles = makeStyles(theme => ({
   root: {
     display: "flex",
@@ -196,7 +196,7 @@ const Kanban = () => {
         kanban={1}
       />
 
-      <div className={classes.root}>
+      <MainContainer className={classes.root}>
         <Box sx={{ marginTop: 10, marginBottom: 10 }}>
 
           <Button
@@ -210,10 +210,10 @@ const Kanban = () => {
           onCardMoveAcrossLanes={handleCardMove}
           style={{ backgroundColor: 'rgba(252, 252, 252, 0.03)' }}
         />
-
-
-
-      </div>
+      </MainContainer>
+      {/* <div className={classes.root}>
+       
+      </div> */}
     </>
   );
 };

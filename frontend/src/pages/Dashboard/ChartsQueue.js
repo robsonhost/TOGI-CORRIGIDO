@@ -78,7 +78,6 @@ export const ChartsQueue = () => {
   const handleGetTicketsInformation = async () => {
     try {
       const { data } = await api.get(`/dashboard/queues?initialDate=${format(initialDate, 'yyyy-MM-dd')}&finalDate=${format(finalDate, 'yyyy-MM-dd')}`);
-      console.log(data);
       setTicketsData(data);
     } catch (error) {
       toast.error('Erro ao buscar informações dos tickets');

@@ -51,8 +51,8 @@ const AudioModal = ({url}) => {
     };
   
     const getAudioSource = () => {
-      let sourceUrl = url;
-  
+      let sourceUrl = url || "";
+      
       if (isIOS) {
         sourceUrl = sourceUrl.replace(".ogg", ".mp3");
       }

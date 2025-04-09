@@ -72,6 +72,7 @@ type MessageData = {
   isPrivate?: boolean;
   vCard?: Contact;
   quotedMsgId?: number | string;
+  mediaTitle?: string;
 };
 
 export const index = async (req: Request, res: Response): Promise<Response> => {
@@ -124,7 +125,7 @@ function obterNomeEExtensaoDoArquivo(url) {
 
 export const store = async (req: Request, res: Response): Promise<Response> => {
   const { ticketId } = req.params;
-  const { body, quotedMsg,quotedMsgId, isPrivate, vCard }: MessageData = req.body;
+  const { body, quotedMsg, quotedMsgId, isPrivate, vCard, mediaTitle }: MessageData = req.body;
   const medias = req.files as Express.Multer.File[];
   const { companyId } = req.user;
 
@@ -137,9 +138,12 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
   try {
     if (medias) {
       await Promise.all(
-        medias.map(async (media: Express.Multer.File) => {
+        medias.map(async (media: Express.Multer.File, index) => {
           if (ticket.channel === "whatsapp") {
-            await SendWhatsAppMedia({ media, ticket, body, isPrivate: /\u200d/.test(body), isForwarded: false, quotedMsgId });
+
+            const subtitle = typeof mediaTitle == 'string' ? mediaTitle : mediaTitle[index]
+
+            await SendWhatsAppMedia({ media, ticket, body: subtitle, isPrivate: /\u200d/.test(body), isForwarded: false, quotedMsgId });
           }
 
           if (ticket.channel === "facebook" || ticket.channel === "instagram") {

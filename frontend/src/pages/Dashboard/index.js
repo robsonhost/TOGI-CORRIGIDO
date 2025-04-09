@@ -48,7 +48,7 @@ import TableTempMedioStatus from "../../components/Dashboard/TableTempoMedioStat
 import TableTempWaitStatus from "../../components/Dashboard/TableTempoWaitStatus";
 import api from "../../services/api";
 // import { getInformations } from "../../components/Dashboard/TableTempoMedioStatus";
-
+import MainContainer from '../../components/MainContainer';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -303,8 +303,6 @@ const Dashboard = () => {
 
     // cooloca um carai de log pra ver od dados cheghando
 
-    console.log(data)
-
     // que dificuldade é fazer isso ?????? pensar em que ????
 
     /// se mata atoa  ...
@@ -425,7 +423,7 @@ const Dashboard = () => {
   // };
 
   return (
-    <div>
+    <MainContainer>
       <Container maxWidth="lg" className={classes.container}>
         <Grid container spacing={3} justifyContent="flex-end">
 
@@ -719,7 +717,7 @@ const Dashboard = () => {
 
         </Grid>
       </Container>
-    </div >
+    </MainContainer >
   );
 };
 

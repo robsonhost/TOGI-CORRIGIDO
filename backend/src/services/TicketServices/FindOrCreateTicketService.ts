@@ -65,8 +65,8 @@ const FindOrCreateTicketService = async (
 
     if (!ticket.isGroup) {
       // @ts-ignore: Unreachable code error
-      if ( ticket?.userId && ((Number(ticket?.userId) !== Number(userId) && userId !== 0 && userId !== "") || (queueId !== 0 && Number(ticket?.queueId) !== Number(queueId) && queueId !== ""))) {
-        throw new AppError(`Ticket em outro atendimento. ${"Atendente: " + ticket?.user?.name} - ${"Fila: " + ticket?.queue?.name}`);
+      if (ticket?.userId && ((Number(ticket?.userId) !== Number(userId) && userId !== 0 && userId !== "") || (queueId !== 0 && Number(ticket?.queueId) !== Number(queueId) && queueId !== ""))) {
+        // throw new AppError(`Ticket em outro atendimento. ${"Atendente: " + ticket?.user?.name} - ${"Fila: " + ticket?.queue?.name}`);
       }
     }
 

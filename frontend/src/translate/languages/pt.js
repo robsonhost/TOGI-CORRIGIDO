@@ -891,7 +891,8 @@ const messages = {
           queueIntegration: "Integrações",
           prompts: "Open.Ai",
           version: "Versão",
-
+          quadros: "Quadros",
+          quadrosConfig: "Configuração",
           kanban: "Kanban",
           Gridreports: "Relatórios",
         },

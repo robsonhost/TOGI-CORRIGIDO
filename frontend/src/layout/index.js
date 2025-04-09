@@ -1,14 +1,9 @@
 import clsx from "clsx";
 import React, { useContext, useEffect, useMemo, useState } from "react";
-// import moment from "moment";
 import UserLanguageSelector from "../components/UserLanguageSelector";
-// import { isNill } from "lodash";
-// import SoftPhone from "react-softphone";
-// import { WebSocketInterface } from "jssip";
 import {
   AppBar,
   Avatar,
-  // FormControl,
   Badge,
   Chip,
   Drawer,
@@ -27,8 +22,6 @@ import InternalChat from "../components/InternalChat"; //Importa internal Chat
 
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import MenuIcon from "@material-ui/icons/Menu";
-// import AccountCircle from "@material-ui/icons/AccountCircle";
-// import whatsappIcon from "../assets/nopicture.png";
 
 import BackdropLoading from "../components/BackdropLoading";
 import NotificationsPopOver from "../components/NotificationsPopOver";
@@ -36,7 +29,6 @@ import NotificationsVolume from "../components/NotificationsVolume";
 import UserModal from "../components/UserModal";
 import { AuthContext } from "../context/Auth/AuthContext";
 import MainListItems from "./MainListItems";
-// import DarkMode from "../components/DarkMode";
 import AnnouncementsPopover from "../components/AnnouncementsPopover";
 import toastError from "../errors/toastError";
 import { i18n } from "../translate/i18n";
@@ -51,7 +43,6 @@ import { getBackendUrl } from "../config";
 import useSettings from "../hooks/useSettings";
 import { socketConnection } from "../services/socket";
 import ColorModeContext from "./themeContext";
-// import { SocketContext } from "../context/Socket/SocketContext";
 
 const backendUrl = getBackendUrl();
 
@@ -61,10 +52,6 @@ const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
     height: "100vh",
-    // [theme.breakpoints.down("sm")]: {
-    //   height: "calc(100vh - 56px)",
-    // },
-    maxHeight: "100% !important",
     backgroundColor: theme.palette.fancyBackground,
     "& .MuiButton-outlinedPrimary": {
       color: theme.palette.primary,
@@ -92,7 +79,7 @@ const useStyles = makeStyles((theme) => ({
     paddingRight: 52, // keep right padding when drawer closed
     color: theme.palette.dark.main,
     background: theme.palette.barraSuperior,
-    minHeight: `76px`,
+    height: `76px`,
   },
   toolbarIcon: {
     display: "flex",
@@ -124,9 +111,6 @@ const useStyles = makeStyles((theme) => ({
       display: "none",
     },
   },
-  // menuButton: {
-  //   marginRight: 36,
-  // },
   menuButtonHidden: {
     display: "none",
   },
@@ -167,21 +151,13 @@ const useStyles = makeStyles((theme) => ({
   },
   content: {
     flex: 1,
-    overflow: "auto",
   },
   container: {
     paddingTop: theme.spacing(4),
     paddingBottom: theme.spacing(4),
   },
-  // paper: {
-  //     padding: theme.spacing(2),
-  //     display: "flex",
-  //     overflow: "auto",
-  //     flexDirection: "column",
-  //   },
   containerWithScroll: {
     flex: 1,
-    // padding: theme.spacing(1),
     overflowY: "scroll", // Use "auto" para mostrar a barra de rolagem apenas quando necessário
     overflowX: "hidden", // Oculta a barra de rolagem horizontal
     ...theme.scrollbarStyles,
@@ -193,9 +169,6 @@ const useStyles = makeStyles((theme) => ({
     "-ms-overflow-style": "none",
     "scrollbar-width": "none",
     backgroundColor: "#FFF",
-  },
-  NotificationsPopOver: {
-    // color: theme.barraSuperior.secondary.main,
   },
   logo: {
     width: "100%",
@@ -281,8 +254,6 @@ const LoggedInLayout = ({ children, themeToggle }) => {
   const { handleLogout, loading, showDialogButton } = useContext(AuthContext);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerVariant, setDrawerVariant] = useState("permanent");
-  // const [dueDate, setDueDate] = useState("");
-  //   const socketManager = useContext(SocketContext);
   const { user, socket } = useContext(AuthContext);
 
   const theme = useTheme();
@@ -317,9 +288,6 @@ const LoggedInLayout = ({ children, themeToggle }) => {
   });
 
   useEffect(() => {
-    // if (localStorage.getItem("public-token") === null) {
-    //   handleLogout()
-    // }
 
     if (document.body.offsetWidth > 600) {
       if (user.defaultMenu === "closed") {
@@ -347,7 +315,7 @@ const LoggedInLayout = ({ children, themeToggle }) => {
 
     const socket = socketConnection({ companyId, userId: user.id });
     if (!socket) {
-      return () => {};
+      return () => { };
     }
     const ImageUrl = user.profileImage;
     if (ImageUrl !== undefined && ImageUrl !== null)
@@ -491,8 +459,8 @@ const LoggedInLayout = ({ children, themeToggle }) => {
           >
             {/* {greaterThenSm && user?.profile === "admin" && getDateAndDifDays(user?.company?.dueDate).difData < 7 ? ( */}
             {greaterThenSm &&
-            user?.profile === "admin" &&
-            user?.company?.dueDate ? (
+              user?.profile === "admin" &&
+              user?.company?.dueDate ? (
               <>
                 {i18n.t("mainDrawer.appBar.user.message")} <b>{user.name}</b>,{" "}
                 {i18n.t("mainDrawer.appBar.user.messageEnd")}{" "}
@@ -606,9 +574,7 @@ const LoggedInLayout = ({ children, themeToggle }) => {
         </Toolbar>
       </AppBar>
       <main className={classes.content}>
-        <div className={classes.appBarSpacer} />
         {showDialogButton && <InternalChat />}
-
         {children ? children : null}
       </main>
     </div>
